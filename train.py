@@ -1,4 +1,3 @@
-# code is basicly:https://github.com/google-research/deep_representation_one_class
 from pathlib import Path
 from tqdm import tqdm
 import datetime
@@ -43,7 +42,6 @@ def run_training(data_type="EyeQ",
                  model_dir="models",
                  epochs=256,
                  pretrained=True,
-                 test_epochs=10,
                  freeze_vgg=20,
                  learninig_rate=1e-3,
                  optim_name="SGD",
@@ -164,9 +162,6 @@ if __name__ == '__main__':
     parser.add_argument('--no-pretrained', dest='pretrained', default=True, action='store_false',
                         help='use pretrained values to initalize vgg16 , (default: True)')
     
-    parser.add_argument('--test_epochs', default=50, type=int,
-                        help='interval to calculate the auc during trainig, if -1 do not calculate test scores, (default: 10)')                  
-
     parser.add_argument('--freeze_vgg', default=1, type=int,
                         help='number of epochs to freeze vgg (default: 20)')
     
@@ -179,7 +174,6 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', default=64, type=int,
                         help='batch size, real batchsize is depending on cut paste config normal cutaout has effective batchsize of 2x batchsize (dafault: "64")')   
 
-    
     parser.add_argument('--cuda', default=True,
                     help='use cuda for training (default: False)')
     
@@ -213,7 +207,6 @@ if __name__ == '__main__':
                         model_dir=Path(args.model_dir),
                         epochs=args.epochs,
                         pretrained=args.pretrained,
-                        test_epochs=args.test_epochs,
                         freeze_vgg=args.freeze_vgg,
                         learninig_rate=args.lr,
                         optim_name=args.optim,
