@@ -5,9 +5,9 @@ This is the official pytorch implementation of the paper:
 
 Three publicly-accessible datasets are used in this work.
 
-- EyeQ: Images of grades 1-4 are all considered as abnormal. All normal images in the training set are used to train LesionPaste. [[link](https://github.com/HzFu/EyeQ)].
-- IDRiD: The lesions of a single fundus image from IDRiD are used as the true anomalies for DR anomaly detection [[link](https://idrid.grand-challenge.org)].
-- MosMed: CT slices containing COVID-19 lesions are considered as abnormal. [[link](https://www.kaggle.com/mathurinache/mosmeddata-chest-ct-scans-with-covid19)].
+- EyeQ: Images of grades 1-4 are all considered as abnormal. All normal images in the training set are used to train LesionPaste. [[link](https://github.com/HzFu/EyeQ)]
+- IDRiD: The lesions of a single fundus image from IDRiD are used as the true anomalies for DR anomaly detection. [[link](https://idrid.grand-challenge.org)]
+- MosMed: CT slices containing COVID-19 lesions are considered as abnormal. [[link](https://www.kaggle.com/mathurinache/mosmeddata-chest-ct-scans-with-covid19)]
 
 
 ## Usage
@@ -17,7 +17,7 @@ Three publicly-accessible datasets are used in this work.
 A trained model and predicted results can be downloaded [here](https://github.com/YijinHuang/Lesion-based-Contrastive-Learning/releases/tag/v1.0).
 
 
-**1. Use one of the following method to build your dataset:**
+**1. Use the following method to build your dataset:**
 
 
 Organize your images as follows:
