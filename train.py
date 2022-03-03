@@ -13,7 +13,7 @@ from torchvision.datasets import ImageFolder
 from sklearn.metrics import roc_curve, auc
 
 from dataset import load_data
-from model import ProjectionNet
+from model import Vgg
 # from eval import eval_model
 
 def evaluate(model, dataloader, device):
@@ -42,28 +42,22 @@ def run_training(data_type="EyeQ",
                  model_dir="models",
                  epochs=256,
                  pretrained=True,
-                 freeze_vgg=20,
                  learninig_rate=1e-3,
                  optim_name="SGD",
                  batch_size=64,
                  device = "cuda",
                  workers=16):
-    torch.multiprocessing.freeze_support()
-    # Temperature Hyperparameter currently not used
-    temperature = 0.2
+    # torch.multiprocessing.freeze_support()
 
     weight_decay = 0.00003
     momentum = 0.9
     model_name = f"model-{data_type}" + '-{date:%Y-%m-%d_%H_%M_%S}'.format(date=datetime.datetime.now() )
-    # train_data_path = "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/not_split_trainset/"
     test_data_path = "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/test/"
     test_data_path_all = ["/mnt/huangwk/Dataset/EyeQ/split_EyeQ/test_all/", 
     "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/test1/",
     "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/test2/",
     "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/test3/",
     "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/test4/"]
-    # data_path = "/mnt/huangwk/Dataset/MosMedData/studies/train/"
-    # test_data_path = "/mnt/huangwk/Dataset/MosMedData/studies/test/"
     path_name = train_data_path.split("/")[-2]
     print(path_name)
     
@@ -80,19 +74,14 @@ def run_training(data_type="EyeQ",
 
     # create Model:
     num_classes = 2
-    model = ProjectionNet(pretrained=pretrained, num_classes=num_classes)
+    model = Vgg(pretrained=pretrained, num_classes=num_classes)
     
     model.to(device)
-    # print(model)
-
-    if freeze_vgg > 0:
-        model.freeze_vgg()
 
     loss_fn = torch.nn.CrossEntropyLoss()
     if optim_name == "sgd":
         optimizer = optim.SGD(model.parameters(), lr=learninig_rate, momentum=momentum,  weight_decay=weight_decay)
         scheduler = CosineAnnealingWarmRestarts(optimizer, epochs)
-        #scheduler = None
     elif optim_name == "adam":
         optimizer = optim.Adam(model.parameters(), lr=learninig_rate, weight_decay=weight_decay)
         scheduler = None
@@ -108,13 +97,9 @@ def run_training(data_type="EyeQ",
         progress = tqdm(enumerate(train_loader))
         for step, train_data in progress:
             model.train()
-            if epoch == freeze_vgg:
-                model.unfreeze()
-            # print(len(data[0]))
             X, y = train_data
             X, y = X.to(device), y.to(device)
             y = y.long()
-            # zero the parameter gradients
             optimizer.zero_grad()
             logits = model(X)
             loss = loss_fn(logits, y)
@@ -123,7 +108,6 @@ def run_training(data_type="EyeQ",
             # regulize weights:
             loss.backward()
             optimizer.step()
-    #         predicted = torch.argmax(ip,axis=0)
             predicted = torch.argmax(logits,axis=1)
             accuracy = torch.true_divide(torch.sum(predicted==y), predicted.size(0))
             epoch_loss += loss.item()
@@ -162,9 +146,6 @@ if __name__ == '__main__':
     parser.add_argument('--no-pretrained', dest='pretrained', default=True, action='store_false',
                         help='use pretrained values to initalize vgg16 , (default: True)')
     
-    parser.add_argument('--freeze_vgg', default=1, type=int,
-                        help='number of epochs to freeze vgg (default: 20)')
-    
     parser.add_argument('--lr', default=0.001, type=float,
                         help='learning rate (default: 1e-3)')
 
@@ -192,22 +173,15 @@ if __name__ == '__main__':
     # save config.
     with open(Path(args.model_dir) / "run_config.txt", "w") as f:
         f.write(str(args))
-    # train_data_path_all = ["/mnt/huangwk/Dataset/EyeQ/split_EyeQ/train_single_48_95_aug/"]
-
-    # train_data_path_all = ["/mnt/huangwk/Dataset/EyeQ/split_EyeQ/train_multi_2_no_aug/",
-    # "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/train_multi_5_no_aug/",
-    # "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/train_multi_10_no_aug/"]
 
     train_data_path_all = ["/mnt/huangwk/Dataset/EyeQ/split_EyeQ/train_single_48_95_aug_blend0.7/",
     "/mnt/huangwk/Dataset/EyeQ/split_EyeQ/train_single_48_95_aug_blend0.6/"]
-    # train_data_path_all = ["/mnt/huangwk/Dataset/EyeQ/split_EyeQ/train_single_48_95_aug_randblend2/"]
     for train_data_path in train_data_path_all:
         run_training(data_type=args.type,
                         train_data_path=train_data_path,
                         model_dir=Path(args.model_dir),
                         epochs=args.epochs,
                         pretrained=args.pretrained,
-                        freeze_vgg=args.freeze_vgg,
                         learninig_rate=args.lr,
                         optim_name=args.optim,
                         batch_size=args.batch_size,

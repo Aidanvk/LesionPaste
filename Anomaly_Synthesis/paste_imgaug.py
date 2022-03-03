@@ -100,12 +100,6 @@ def past_SE(pasted_imgs, i, img_masks):
     return pasted_imgs, img_masks
 
 def run(i, image):
-    #MA和HE比较分散，HE分布外沿，EX偏聚集，SE也是外沿分散
-    #提取每个病灶的bbox并且进行crop然后paste到随机的位置来生成新的病灶
-    #对MA可以每个都加，随机采样并且打乱病灶分布然后粘贴，因为病灶比较小不用缩放
-    #对60%的样本加HE
-    #对40%的样本加EX
-    #对10%的样本加SE
     random.seed(i)
     img_path1 = os.path.join(filepath1, image)
     img = Image.open(img_path1).convert("RGB")
@@ -116,15 +110,15 @@ def run(i, image):
     img_mask = Image.new("RGB", (img_size,img_size), (0, 0, 0))
     img_masks = [img_mask]
     pasted_imgs, img_masks =  past_MA(pasted_imgs, i, img_masks)#所有都先粘贴 MA
-    if degree_level>degree_threshold[0]: #80，90, 92, 95, 98
+    if degree_level>degree_threshold[0]:
         print(image)
         pasted_imgs, img_masks =  past_HE(pasted_imgs, i, img_masks)
         pasted_imgs, img_masks =  past_EX(pasted_imgs, i, img_masks)
         pasted_imgs, img_masks =  past_SE(pasted_imgs, i, img_masks)
-    elif degree_level>degree_threshold[1]:#60，80, 85, 90, 95
+    elif degree_level>degree_threshold[1]:
         pasted_imgs, img_masks =  past_HE(pasted_imgs, i, img_masks)
         pasted_imgs, img_masks =  past_EX(pasted_imgs, i, img_masks)
-    elif degree_level>degree_threshold[2]:#40，60, 70, 80, 90
+    elif degree_level>degree_threshold[2]:
         pasted_imgs, img_masks =  past_HE(pasted_imgs, i, img_masks)
     paste_out_path =  os.path.join(out_path, image)
     pasted_imgs[0].save(paste_out_path, quality=100)
@@ -145,9 +139,9 @@ if __name__ == '__main__':
     out_path = "/mnt/huangwk/Dataset/idrid/paste_out_single_48_95_aug/"#粘贴图像输出路径
     out_mask_path = "/mnt/huangwk/Dataset/idrid/paste_out_single_48_95_aug_mask/"#粘贴mask输出路径
     name = 'IDRiD_48_'#48,39,13,49,03
+    img_size=512
     blending_coef = 0.9
-    degree_threshold = [95, 90, 80]# 80 60 40；90 80 60; 92 85 70;95 90 80; 98 95 90
-    img_size = 512
+    degree_threshold = [95, 90, 80]
     source_path1 = os.path.join(seg_path1, name+'MA.tif')
     MA = Image.open(source_path1).convert("RGB")
     source_path2 = os.path.join(seg_path2, name+'HE.tif')

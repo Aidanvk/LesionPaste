@@ -30,8 +30,6 @@ def detection_test(data_type="Kvasir",
     model.eval()
     for data in test_loader:
         X, Y = data
-        # if X.shape[1] == 1:
-        #     X = X.repeat(1, 3, 1, 1)
         X, Y = X.to(device), Y.to(device)
         Y = Y.long()
         output_pred = model.forward(X)
@@ -41,7 +39,7 @@ def detection_test(data_type="Kvasir",
     labels, scores, predicts = zip(*label_score)
     labels = np.array(labels)
     scores = np.array(scores)
-    fpr, tpr, thresholds = roc_curve(labels, scores, pos_label=0)
+    fpr, tpr, _ = roc_curve(labels, scores, pos_label=0)
     roc_auc = auc(fpr, tpr)
     roc_auc = round(roc_auc, 4)
     acc = np.sum(predicts==labels)/len(predicts)

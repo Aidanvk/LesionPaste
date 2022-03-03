@@ -1,0 +1,14 @@
+dataset: EyeQ
+data_dir: /path/to/your/dataset
+input_size: 256
+mean: [0.5312014818191528, 0.519341230392456, 0.5130304098129272], # a list of three numbers for RGB
+std: [0.11665639281272888, 0.11394210159778595, 0.07831837981939316] # a list of three numbers for RGB
+epochs: 200
+model_dir: models
+no-pretrained: True
+test_epochs: 200
+lr: 0.001
+optim: sgd
+batch_size: 64
+cuda: True
+workers: 16
