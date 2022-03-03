@@ -14,7 +14,6 @@ from sklearn.metrics import roc_curve, auc
 
 from dataset import load_data
 from model import Vgg
-# from eval import eval_model
 
 def evaluate(model, dataloader, device):
         label_score = []
